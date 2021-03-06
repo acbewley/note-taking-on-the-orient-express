@@ -5,6 +5,8 @@ const fs = require('fs');
 const app = express();
 const PORT = 8080;
 
+let notes;
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(__dirname));
@@ -17,15 +19,13 @@ app.post('/api/notes', (req, res) => {
     const newNote = req.body
     fs.readFile('db.json', 'utf8', (err, data) => {
         if (err) console.error(err)
-        let notes = [];
-        for (i = 0; i < data.length; i++) {
-           notes.push(data[i]) 
-        }
-        
-        console.log(notes)
+        notes = JSON.parse(data);
         notes.push(newNote)
-        // console.log(notes)
-    })
+        fs.writeFile('db.json', JSON.stringify(notes), (err) => {
+            if (err) throw err;
+            console.log('wrote new note!')
+        })
+    });
 })
 
 app.listen(PORT, () => console.log(`App listening on http://localhost:${PORT}`));
